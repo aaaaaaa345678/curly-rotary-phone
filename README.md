@@ -89,3 +89,19 @@ python item_cf_evaluate.py --data-file /path/to/ml-100k/u.data
 - `--test-size` / `--sample-size` / `--seed`：评估拆分与采样参数
 - `--top-k`：预测时使用的相似物品数量（默认 `10`）
 
+
+## Web 首页模板
+
+新增模板：`templates/index.html`（Bootstrap 5 深色渐变风格首页）
+
+可用于 Flask：
+
+```python
+from flask import Flask, render_template
+app = Flask(__name__)
+
+@app.get('/')
+def index():
+    return render_template('index.html')
+```
+
