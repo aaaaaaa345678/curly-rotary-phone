@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>算法对比</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        .navbar {
+            background: rgba(255,255,255,0.1) !important;
+            backdrop-filter: blur(10px);
+        }
+        .navbar-brand, .nav-link { color: white !important; }
+        .card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            color: white;
+        }
+        .page-title {
+            color: white;
+            text-align: center;
+            padding: 40px 0 20px;
+        }
+        .metric-card {
+            text-align: center;
+            padding: 25px;
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .metric-label {
+            opacity: 0.7;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        .best { color: #2ecc71; }
+        .mid { color: #f39c12; }
+        .low { color: #e74c3c; }
+        table { color: white; }
+        th {
+            background: rgba(255,255,255,0.1) !important;
+            color: white !important;
+            border-color: rgba(255,255,255,0.2) !important;
+        }
+        td { border-color: rgba(255,255,255,0.1) !important; }
+        tr:hover td { background: rgba(255,255,255,0.05) !important; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">🎬 电影推荐系统</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/">首页</a>
+                <a class="nav-link active" href="/compare">算法对比</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-title">
+        <h2>📊 算法性能对比分析</h2>
+        <p style="opacity:0.7">基于 MovieLens 100K 数据集 · 500条测试样本</p>
+    </div>
+
+    <div class="container pb-5">
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card metric-card">
+                    <div class="metric-value best">0.8902</div>
+                    <div class="metric-label">User-Based CF · RMSE</div>
+                    <span class="badge bg-success mt-2">RMSE最优</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card metric-card">
+                    <div class="metric-value best">0.7226</div>
+                    <div class="metric-label">User-Based CF · MAE</div>
+                    <span class="badge bg-success mt-2">MAE最优</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card metric-card">
+                    <div class="metric-value mid">0.9643</div>
+                    <div class="metric-label">SVD · RMSE</div>
+                    <span class="badge bg-warning mt-2">矩阵分解方法</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card p-3">
+                    <div id="rmse_chart" style="height:300px"></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card p-3">
+                    <div id="mae_chart" style="height:300px"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-4">
+            <h5 class="mb-4">📋 详细对比表</h5>
+            <table class="table table-borderless">
+                <thead>
+                    <tr>
+                        <th>算法</th>
+                        <th>RMSE</th>
+                        <th>MAE</th>
+                        <th>原理</th>
+                        <th>适用场景</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>⭐ User-Based CF</td>
+                        <td class="best">0.8902</td>
+                        <td class="best">0.7226</td>
+                        <td>基于用户相似度</td>
+                        <td>用户数量较少</td>
+                    </tr>
+                    <tr>
+                        <td>Item-Based CF</td>
+                        <td class="low">0.9915</td>
+                        <td class="low">0.7702</td>
+                        <td>基于物品相似度</td>
+                        <td>物品数量较少</td>
+                    </tr>
+                    <tr>
+                        <td>SVD 矩阵分解</td>
+                        <td class="mid">0.9643</td>
+                        <td class="mid">0.7553</td>
+                        <td>潜在因子模型</td>
+                        <td>大规模数据集</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        var rmse = echarts.init(document.getElementById('rmse_chart'));
+        rmse.setOption({
+            title: { text: 'RMSE 对比（越低越好）', textStyle: { color: '#fff' } },
+            backgroundColor: 'transparent',
+            xAxis: {
+                type: 'category',
+                data: ['User-CF', 'Item-CF', 'SVD'],
+                axisLabel: { color: '#fff' }
+            },
+            yAxis: {
+                type: 'value',
+                min: 0.8,
+                max: 1.1,
+                axisLabel: { color: '#fff' },
+                splitLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } }
+            },
+            series: [{
+                type: 'bar',
+                data: [
+                    { value: 0.8902, itemStyle: { color: '#2ecc71' } },
+                    { value: 0.9915, itemStyle: { color: '#e74c3c' } },
+                    { value: 0.9643, itemStyle: { color: '#f39c12' } }
+                ],
+                label: { show: true, position: 'top', color: '#fff' },
+                barWidth: '50%'
+            }]
+        });
+
+        var mae = echarts.init(document.getElementById('mae_chart'));
+        mae.setOption({
+            title: { text: 'MAE 对比（越低越好）', textStyle: { color: '#fff' } },
+            backgroundColor: 'transparent',
+            xAxis: {
+                type: 'category',
+                data: ['User-CF', 'Item-CF', 'SVD'],
+                axisLabel: { color: '#fff' }
+            },
+            yAxis: {
+                type: 'value',
+                min: 0.6,
+                max: 0.85,
+                axisLabel: { color: '#fff' },
+                splitLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } }
+            },
+            series: [{
+                type: 'bar',
+                data: [
+                    { value: 0.7226, itemStyle: { color: '#2ecc71' } },
+                    { value: 0.7702, itemStyle: { color: '#e74c3c' } },
+                    { value: 0.7553, itemStyle: { color: '#f39c12' } }
+                ],
+                label: { show: true, position: 'top', color: '#fff' },
+                barWidth: '50%'
+            }]
+        });
+    </script>
+</body>
+</html>
