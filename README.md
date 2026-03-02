@@ -93,6 +93,7 @@ python item_cf_evaluate.py --data-file /path/to/ml-100k/u.data
 ## Web 首页模板
 
 新增模板：`templates/index.html`（Bootstrap 5 深色渐变风格首页）
+新增模板：`templates/compare.html`（ECharts 算法对比可视化页）
 
 可用于 Flask：
 
@@ -103,5 +104,9 @@ app = Flask(__name__)
 @app.get('/')
 def index():
     return render_template('index.html')
+
+@app.get('/compare')
+def compare():
+    return render_template('compare.html')
 ```
 
