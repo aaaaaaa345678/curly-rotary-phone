@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>推荐结果</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        .navbar {
+            background: rgba(255,255,255,0.1) !important;
+            backdrop-filter: blur(10px);
+        }
+        .navbar-brand, .nav-link {
+            color: white !important;
+        }
+        .card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            color: white;
+        }
+        .page-title {
+            color: white;
+            text-align: center;
+            padding: 40px 0 20px;
+        }
+        .movie-card {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+        .movie-card:hover {
+            transform: translateX(5px);
+            background: rgba(255,255,255,0.15);
+        }
+        .rank {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #e94560;
+            width: 40px;
+            text-align: center;
+        }
+        .movie-info {
+            flex: 1;
+            margin-left: 15px;
+        }
+        .movie-name {
+            font-size: 1rem;
+            color: white;
+            margin-bottom: 4px;
+        }
+        .movie-score {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.6);
+        }
+        .score-badge {
+            background: linear-gradient(45deg, #e94560, #0f3460);
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 0.85rem;
+            color: white;
+            min-width: 74px;
+            text-align: center;
+        }
+        .watched-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+        }
+        .stars {
+            color: #ffd700;
+        }
+        .btn-back {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 10px;
+            padding: 10px 30px;
+        }
+        .btn-back:hover {
+            background: rgba(255,255,255,0.3);
+            color: white;
+        }
+        .algo-badge {
+            background: linear-gradient(45deg, #e94560, #0f3460);
+            border-radius: 20px;
+            padding: 5px 20px;
+            font-size: 0.9rem;
+            color: white;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">🎬 电影推荐系统</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/">首页</a>
+                <a class="nav-link" href="/compare">算法对比</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-title">
+        <h2>用户 {{ user_id }} 的推荐结果</h2>
+        <div class="algo-badge">{{ algo_name }}</div>
+    </div>
+
+    <div class="container pb-5">
+        <div class="row">
+            <div class="col-md-7">
+                <div class="card p-4 mb-4">
+                    <h5 class="mb-4">🎯 为你推荐的电影</h5>
+                    {% if results %}
+                        {% for name, score in results %}
+                        <div class="movie-card">
+                            <div class="rank">{{ loop.index }}</div>
+                            <div class="movie-info">
+                                <div class="movie-name">{{ name }}</div>
+                                <div class="movie-score">推荐分数：{{ "%.4f"|format(score) }}</div>
+                            </div>
+                            <div class="score-badge">
+                                ⭐ {{ "%.1f"|format(score) }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center opacity-50">暂无推荐结果</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-md-5">
+                <div class="card p-4">
+                    <h5 class="mb-4">📽️ 该用户看过的电影</h5>
+                    {% if watched_list %}
+                        {% for name, rating in watched_list %}
+                        <div class="watched-item">
+                            <span>{{ name[:30] }}</span>
+                            <span class="stars">
+                                {% for _ in range(rating|int) %}⭐{% endfor %}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center opacity-50 mb-0">暂无观影记录</p>
+                    {% endif %}
+                </div>
+
+                <div class="text-center mt-4">
+                    <a href="/" class="btn btn-back">← 重新推荐</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
