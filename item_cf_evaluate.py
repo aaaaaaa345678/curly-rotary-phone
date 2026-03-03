@@ -39,19 +39,19 @@ def predict_rating_item(
     item_id: int,
     train_matrix: pd.DataFrame,
     item_sim_df: pd.DataFrame,
+    global_mean: float,
     top_k: int = 10,
 ) -> float:
-    global_mean = float(train_matrix.values.mean())
 
     if item_id not in train_matrix.index or user_id not in train_matrix.columns:
-        return global_mean
+        return float(np.clip(global_mean, 1, 5))
 
     sim_items = item_sim_df[item_id].drop(item_id).nlargest(top_k)
     user_ratings = train_matrix.loc[sim_items.index, user_id]
     rated = user_ratings[user_ratings > 0]
 
     if rated.empty:
-        return global_mean
+        return float(np.clip(global_mean, 1, 5))
 
     pred = float(rated.mean())
     return float(np.clip(pred, 1, 5))
@@ -67,12 +67,13 @@ def evaluate_item_cf(
     train_data, test_data = train_test_split(df_raw, test_size=test_size, random_state=seed)
     train_matrix = build_item_user_matrix(train_data)
     item_sim_df = build_item_similarity(train_matrix)
+    global_mean = float(train_data["rating"].mean())
 
     n = min(sample_size, len(test_data))
     test_sample = test_data.sample(n=n, random_state=seed)
 
     preds = [
-        predict_rating_item(int(row.user_id), int(row.item_id), train_matrix, item_sim_df, top_k=top_k)
+        predict_rating_item(int(row.user_id), int(row.item_id), train_matrix, item_sim_df, global_mean, top_k=top_k)
         for row in test_sample.itertuples(index=False)
     ]
     actuals = test_sample["rating"].to_numpy(dtype=float)
